@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IC Mission: Master SPV IC Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800;900&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #FEF08A; /* Vibrant Neo-brutalist Yellow */
+            color: #0F172A;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .neo-box {
+            background-color: #FFFFFF;
+            border: 4px solid #000000;
+            box-shadow: 6px 6px 0px #000000;
+            border-radius: 12px;
+        }
+
+        .neo-btn {
+            background-color: #3B82F6;
+            color: #FFFFFF;
+            font-weight: 800;
+            border: 3px solid #000000;
+            box-shadow: 4px 4px 0px #000000;
+            border-radius: 10px;
+            transition: all 0.1s ease;
+            cursor: pointer;
+        }
+
+        .neo-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 1px 1px 0px #000000;
+        }
+
+        .neo-btn-green { background-color: #10B981; }
+        .neo-btn-yellow { background-color: #F59E0B; color: #000000; }
+        .neo-btn-purple { background-color: #8B5CF6; }
+        .neo-btn-pink { background-color: #EC4899; }
+        .neo-btn-cyan { background-color: #06B6D4; color: #000; }
+
+        .neo-badge {
+            border: 2px solid #000000;
+            box-shadow: 2px 2px 0px #000000;
+        }
+
+        .badge-locked {
+            filter: grayscale(1);
+            opacity: 0.4;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FEF08A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #000000;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center p-3 sm:p-6 bg-yellow-200">
+
+    <!-- TOP HEADER / CONTROLS -->
+    <header class="w-full max-w-xl flex justify-between items-center mb-4 neo-box p-3 bg-cyan-300">
+        <div class="flex items-center gap-2">
+            <span class="text-3xl">🕵️‍♂️</span>
+            <div>
+                <h1 class="font-black text-lg sm:text-xl leading-tight uppercase tracking-wider">IC MISSION: SPV SIMULATOR</h1>
+                <p class="text-xs font-bold text-slate-800">Inventory Control & Investigation Specialist</p>
+            </div>
+        </div>
+        <button id="bgmToggleBtn" onclick="toggleAudio()" class="neo-btn bg-white text-black px-3 py-1.5 text-xs sm:text-sm flex items-center justify-center gap-1">
+            🔊 Sound On
+        </button>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="w-full max-w-xl flex-1 flex flex-col justify-center">
+
+        <!-- 1. AUTH SCREEN -->
+        <section id="authScreen" class="neo-box p-5 bg-white flex flex-col gap-4">
+            <div class="bg-pink-400 p-3 border-2 border-black rounded-lg text-center font-black text-xl shadow-[3px_3px_0px_#000]">
+                🚀 REGISTRASI SPV IC
+            </div>
+            
+            <p class="text-xs font-bold text-slate-700 bg-amber-100 p-2.5 border-2 border-black rounded-lg">
+                Selamat Datang di Portal Simulasi Kualifikasi Promosi Supervisor Inventory Control (IC)! Uji kompetensi Anda dalam Investigasi Fraud, Stock Opname, Intransit, & Mitigasi Risiko.
+            </p>
+
+            <form id="loginForm" onsubmit="handleLogin(event)" class="flex flex-col gap-3 mt-1">
+                <div>
+                    <label class="block font-extrabold text-xs mb-1 uppercase">Nama Lengkap (Huruf Saja)</label>
+                    <input type="text" id="inputNama" placeholder="Contoh: Pratama Wijaya" required 
+                        class="w-full p-3 border-3 border-black rounded-lg font-bold bg-yellow-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black">
+                </div>
+
+                <div>
+                    <label class="block font-extrabold text-xs mb-1 uppercase">NIK (Angka Saja)</label>
+                    <input type="text" id="inputNIK" placeholder="Contoh: 21004561" required 
+                        class="w-full p-3 border-3 border-black rounded-lg font-bold bg-yellow-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black">
+                </div>
+
+                <button type="submit" class="neo-btn neo-btn-green py-3.5 text-lg mt-2 w-full uppercase tracking-wider">
+                    Masuk Ke Mission Briefing ➔
+                </button>
+            </form>
+        </section>
+
+        <!-- 2. MISSION BRIEFING & HOOK SCREEN -->
+        <section id="briefingScreen" class="neo-box p-5 bg-white hidden flex-col gap-4">
+            <div class="bg-purple-400 p-3 border-2 border-black rounded-lg text-center font-black text-xl shadow-[3px_3px_0px_#000]">
+                📋 BRIEFING PROMOSI SPV IC
+            </div>
+
+            <!-- HOOK WHY -->
+            <div class="bg-amber-100 p-3 border-2 border-black rounded-lg text-xs leading-relaxed font-bold">
+                🔥 <span class="underline">PERAN VITAL SUPERVISOR IC:</span><br>
+                Sebagai SPV IC, Anda adalah benteng utama dalam menjaga akurasi aset, menekan Nota Kurang Lebih (NKL), mengendalikan barang rusak, serta membongkar indikasi fraud baik di Toko maupun Distribution Center (DC). Keputusan Anda menentukan profitabilitas Cabang!
+            </div>
+
+            <!-- MISSION OBJECTIVE -->
+            <div class="space-y-2 text-sm font-bold">
+                <p class="text-blue-600 font-extrabold uppercase">🎯 5 Domain Utama Pembelajaran:</p>
+                <div class="grid grid-cols-2 gap-2 text-[11px]">
+                    <div class="p-2 border border-black bg-blue-50 rounded">1. Organisasi & Jobdesc IC HO/Cabang</div>
+                    <div class="p-2 border border-black bg-emerald-50 rounded">2. SOP SO S-B-H-I & Uji Petik DC</div>
+                    <div class="p-2 border border-black bg-red-50 rounded">3. Investigasi Fraud & BAP 5W2H</div>
+                    <div class="p-2 border border-black bg-purple-50 rounded">4. Goods Intransit & DSI Analisa</div>
+                </div>
+            </div>
+
+            <!-- RULES -->
+            <div class="bg-emerald-100 p-3 border-2 border-black rounded-lg text-xs font-bold space-y-1">
+                <p class="font-extrabold text-emerald-800 uppercase">⚡ Aturan Game & Skor:</p>
+                <p>• Jawaban Benar = <span class="text-green-700">+100 Poin</span> | Salah = <span class="text-red-600">-20 Poin</span></p>
+                <p>• Kumpulkan 5 Lencana Keahlian (*Org Master, Audit Ninja, Fraud Buster, Intransit Pro, Target Specialist*)!</p>
+                <p>• Selesaikan Modul Mini-Sandbox Investigasi 5W2H di akhir sesi.</p>
+            </div>
+
+            <button onclick="startGame()" class="neo-btn neo-btn-yellow py-3 text-lg w-full uppercase font-black tracking-wider">
+                MULAI SIMULASI SPV IC! 🚀
+            </button>
+        </section>
+
+        <!-- 3. GAMEPLAY SCREEN -->
+        <section id="gameScreen" class="hidden flex-col gap-3">
+            <!-- STATUS & PROGRESS BAR -->
+            <div class="neo-box p-3 bg-white space-y-2">
+                <div class="flex justify-between items-center text-xs font-black">
+                    <span id="playerDisplay" class="bg-blue-100 px-2 py-1 border border-black rounded">User</span>
+                    <span id="scoreDisplay" class="bg-green-300 px-2 py-1 border border-black rounded">Poin: 0</span>
+                </div>
+
+                <!-- PROGRESS BAR -->
+                <div class="w-full bg-gray-200 h-5 border-2 border-black rounded-full overflow-hidden relative">
+                    <div id="progressBar" class="bg-lime-400 h-full w-0 transition-all duration-300"></div>
+                    <span id="progressText" class="absolute inset-0 text-center text-[10px] font-black flex items-center justify-center">0%</span>
+                </div>
+
+                <!-- BADGES CONTAINER -->
+                <div class="grid grid-cols-5 gap-1 pt-1 text-center">
+                    <div id="badge1" class="neo-badge bg-amber-200 p-1 rounded text-[9px] font-black badge-locked" title="Org Master">
+                        🏛️ Org Master
+                    </div>
+                    <div id="badge2" class="neo-badge bg-cyan-200 p-1 rounded text-[9px] font-black badge-locked" title="Audit Ninja">
+                        🔍 Audit Ninja
+                    </div>
+                    <div id="badge3" class="neo-badge bg-red-200 p-1 rounded text-[9px] font-black badge-locked" title="Fraud Buster">
+                        ⚡ Fraud Buster
+                    </div>
+                    <div id="badge4" class="neo-badge bg-purple-200 p-1 rounded text-[9px] font-black badge-locked" title="Intransit Pro">
+                        🚚 Intransit Pro
+                    </div>
+                    <div id="badge5" class="neo-badge bg-lime-200 p-1 rounded text-[9px] font-black badge-locked" title="Target Specialist">
+                        🎯 Target Pro
+                    </div>
+                </div>
+            </div>
+
+            <!-- QUESTION CARD -->
+            <div class="neo-box p-4 bg-white flex flex-col gap-3">
+                <div class="flex justify-between items-center">
+                    <span id="caseCategory" class="text-[10px] font-black uppercase px-2 py-0.5 bg-pink-300 border border-black rounded">
+                        Kategori SO
+                    </span>
+                    <span id="questionNum" class="text-xs font-extrabold text-gray-600">
+                        Soal 1/12
+                    </span>
+                </div>
+
+                <div id="scenarioText" class="text-xs sm:text-sm font-extrabold leading-snug text-slate-800 bg-amber-50 p-3 border-2 border-black rounded-lg">
+                    Memuat Skenario...
+                </div>
+
+                <!-- OPTIONS -->
+                <div id="optionsContainer" class="flex flex-col gap-2 mt-1">
+                    <!-- Dynamic Option Buttons -->
+                </div>
+
+                <!-- FEEDBACK POPUP AREA -->
+                <div id="feedbackBox" class="hidden p-3 border-3 border-black rounded-lg text-xs font-bold space-y-1">
+                    <p id="feedbackTitle" class="font-extrabold text-sm"></p>
+                    <p id="feedbackDesc" class="leading-relaxed"></p>
+                    <button id="nextBtn" onclick="nextQuestion()" class="neo-btn neo-btn-green py-2 px-4 w-full mt-2 text-xs uppercase">
+                        Lanjut Skenario ➔
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 5W2H INVESTIGATION SANDBOX SECTION -->
+        <section id="sandboxScreen" class="neo-box p-4 bg-white hidden flex-col gap-3">
+            <div class="bg-red-400 p-2.5 border-2 border-black rounded-lg text-center font-black text-lg shadow-[3px_3px_0px_#000]">
+                🕵️ MINI-SANDBOX: FORMULASI BAP 5W + 2H
+            </div>
+            <p class="text-xs font-bold text-slate-700 bg-amber-50 p-2 border border-black rounded">
+                Skenario Kasus Fraud: Terjadi indikasi pencurian barang bernilai tinggi dan transaksi manipulatif di Toko X. Susun draft Berita Acara Pemeriksaan (BAP) dengan memilih indikator 5W2H yang paling presisi!
+            </p>
+
+            <div class="space-y-2 text-xs font-bold">
+                <div>
+                    <label class="block text-slate-900 font-extrabold">1. WHAT (Apa Kejadiannya?):</label>
+                    <select id="sbWhat" class="w-full p-2 border-2 border-black rounded bg-yellow-50 font-bold">
+                        <option value="wrong">Selisih kasir akibat kesalahan pemberian uang kembalian</option>
+                        <option value="correct">Indikasi Pencurian Barang Hilang (NKL) dan transaksi Cancel Sales manipulatif oleh oknum internal</option>
+                        <option value="wrong">Kerusakan produk akibat salah pengaturan suhu freezer gudang</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-slate-900 font-extrabold">2. WHO & WHERE (Siapa & Di Mana?):</label>
+                    <select id="sbWhoWhere" class="w-full p-2 border-2 border-black rounded bg-yellow-50 font-bold">
+                        <option value="correct">Oknum Karyawan Toko X di Area Kasir & Area Gudang Toko</option>
+                        <option value="wrong">Driver Pengirim Barang di Area Rest Area Tol</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-slate-900 font-extrabold">3. HOW & HOW MUCH (Modus & Kerugian):</label>
+                    <select id="sbHow" class="w-full p-2 border-2 border-black rounded bg-yellow-50 font-bold">
+                        <option value="correct">Cancel Sales/Manual Cancel tanpa barang & jeda scan < 1 dtk; Kerugian Rp 4.500.000</option>
+                        <option value="wrong">Sipil toko bocor dan barang digigit hama; Kerugian Rp 150.000</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-slate-900 font-extrabold">4. ACTION / TINDAK LANJUT (Sanksi & Rekomendasi):</label>
+                    <select id="sbAction" class="w-full p-2 border-2 border-black rounded bg-yellow-50 font-bold">
+                        <option value="wrong">Membiarkan temuan dan melakukan pemotongan gaji massal tanpa BAP resmi</option>
+                        <option value="correct">BAP Wawancara, Pembebanan ganti rugi, usulan sanksi SP3/PHK via BHRM, & evaluasi CCTV</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="submitSandbox()" class="neo-btn neo-btn-purple py-3 text-sm uppercase font-black mt-2">
+                Verifikasi Draft Laporan BAP ➔
+            </button>
+        </section>
+
+        <!-- 5. POST-ACTION DEBRIEF (RESULT SCREEN) -->
+        <section id="resultScreen" class="neo-box p-5 bg-white hidden flex-col gap-4 text-center">
+            <div class="bg-indigo-400 p-3 border-2 border-black rounded-lg text-center font-black text-xl shadow-[3px_3px_0px_#000]">
+                📊 HASIL EVALUASI & DEBRIEF SPV
+            </div>
+
+            <div class="space-y-1 text-left bg-slate-50 p-3 border-2 border-black rounded-lg text-xs font-bold">
+                <p>👤 <span id="finalPlayerName" class="font-black text-sm text-slate-900">Nama User</span></p>
+                <p>🆔 <span id="finalPlayerNIK" class="text-gray-700">NIK: -</span></p>
+            </div>
+
+            <!-- FINAL SCORE BOX -->
+            <div class="neo-box bg-yellow-300 p-4 space-y-1">
+                <p class="text-xs font-black uppercase">Skor Final Kualifikasi SPV IC</p>
+                <p id="finalScore" class="text-4xl font-black">0</p>
+                <p id="finalAccuracy" class="text-xs font-extrabold text-blue-900">Akurasi: 0%</p>
+            </div>
+
+            <!-- REINFORCEMENT MESSAGE -->
+            <div id="reinforcementBox" class="p-3 border-2 border-black rounded-lg text-xs font-bold text-left bg-blue-50">
+                <!-- Dynamic Reinforcement message -->
+            </div>
+
+            <!-- BADGES EARNED SUMMARY -->
+            <div class="text-left space-y-1">
+                <p class="text-xs font-black uppercase">Lencana / Badges Diperoleh:</p>
+                <div id="finalBadges" class="flex gap-1.5 flex-wrap text-xs">
+                    <!-- Badges acquired list -->
+                </div>
+            </div>
+
+            <button onclick="restartGame()" class="neo-btn neo-btn-purple py-3 text-sm w-full uppercase font-black">
+                🔄 Ulangi Simulasi SPV IC
+            </button>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="w-full max-w-xl text-center mt-4 text-[11px] font-black neo-box bg-white p-2">
+        Inventory Control Training Dept. © 2026 - Indomaret
+    </footer>
+
+    <script>
+        let audioCtx = null;
+        let isMuted = false;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, duration, type = 'sine', volume = 0.1) {
+            if (isMuted || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
+        }
+
+        function playSFX(type) {
+            initAudio();
+            if (isMuted) return;
+            if (type === 'correct') {
+                playTone(523.25, 0.1, 'triangle', 0.2);
+                setTimeout(() => playTone(659.25, 0.1, 'triangle', 0.2), 100);
+                setTimeout(() => playTone(783.99, 0.2, 'triangle', 0.2), 200);
+            } else if (type === 'wrong') {
+                playTone(220, 0.15, 'sawtooth', 0.2);
+                setTimeout(() => playTone(185, 0.25, 'sawtooth', 0.2), 120);
+            } else if (type === 'click') {
+                playTone(400, 0.05, 'square', 0.05);
+            } else if (type === 'badge') {
+                playTone(587.33, 0.1, 'sine', 0.2);
+                setTimeout(() => playTone(880, 0.3, 'sine', 0.2), 100);
+            }
+        }
+
+        function toggleAudio() {
+            initAudio();
+            isMuted = !isMuted;
+            const btn = document.getElementById('bgmToggleBtn');
+            btn.innerHTML = isMuted ? '🔇 Sound Off' : '🔊 Sound On';
+        }
+
+        // Input Sanitization
+        const nameInput = document.getElementById('inputNama');
+        const nikInput = document.getElementById('inputNIK');
+
+        nameInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+        });
+
+        nikInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // 12 SCENARIOS COVERING THE 5 CORE DOMAINS
+        const scenarios = [
+            // Domain 1: Struktur Organisasi & Peran IC
+            {
+                category: "1. Struktur & Peran IC",
+                question: "Sesuai struktur organisasi IC Cabang (Memo CPS No 130 Th 2015), divisi manakah yang secara khusus membawahi penanganan NRB Proforma, BRD, dan Analisa DSI?",
+                options: [
+                    "Divisi Stock Opname (SO) Toko & DCI",
+                    "Divisi Fraud Investigation",
+                    "Divisi Goods Intransit & Reporting",
+                    "Divisi Internal Audit HO"
+                ],
+                correct: 2,
+                badgeAward: "badge1",
+                explanation: "Divisi Goods Intransit and Reporting membawahi penanganan BRD, Analisa DSI, pemeriksaan NRB Proforma/Fisik, serta pelaporan harian/mingguan/bulanan."
+            },
+            {
+                category: "1. Struktur & Peran IC HO",
+                question: "Berdasarkan Memo Internal No. 04/IC-IDM/V/2023, Cabang Indomaret Jakarta 1, Jakarta 2, Pontianak, Tangerang 2, Lebak, dan Samarinda berada di bawah koordinasi Region IC HO berapa?",
+                options: [
+                    "Region 1 IC HO",
+                    "Region 2 IC HO",
+                    "Region 3 IC HO",
+                    "Region 5 IC HO"
+                ],
+                correct: 2,
+                badgeAward: null,
+                explanation: "Region 3 IC HO membawahi Cabang JKT1, JKT2, PTK, TGR2, LBK, dan SMD di bawah kepemimpinan Regional Inventory Control Manager."
+            },
+
+            // Domain 2: Stock Opname & Audit SOP
+            {
+                category: "2. SO Toko & Audit SOP",
+                question: "Saat pelaksanaan Stock Opname di Toko Indomaret, metode urutan teknis apakah yang WAJIB diterapkan oleh personil SO IC?",
+                options: [
+                    "Hitung manual di kertas draft -> Scan -> Bongkar -> Input",
+                    "S-B-H-I (Scan - Bongkar - Hitung - Input) secara berurutan & penanda fisik",
+                    "Bongkar seluruh gudang -> Scan produk display -> Input",
+                    "Input estimasi -> Scan acak -> Hitung ulang"
+                ],
+                correct: 1,
+                badgeAward: "badge2",
+                explanation: "Metode S-B-H-I (Scan - Bongkar - Hitung - Input) secara berurutan serta pemberian penanda fisik adalah SOP wajib pelaksanaan SO Toko."
+            },
+            {
+                category: "2. SO Toko - Pareto NKL",
+                question: "Pada saat SO Toko berlangsung, terdapat 300 items pareto NKL. Berdasarkan UTJ IC Sr. Clerk SO, apa prosedur yang harus dipastikan?",
+                options: [
+                    "Menghitung 10 item pareto secara acak saja",
+                    "Perhitungan ulang 300 items pareto NKL bersama oleh Karyawan IC dan Karyawan Toko bertugas",
+                    "Menyerahkan sepenuhnya perhitungan pareto ke Kepala Toko",
+                    "Membiarkan item pareto dihitung di akhir bulan saja"
+                ],
+                correct: 1,
+                badgeAward: null,
+                explanation: "Memastikan perhitungan ulang 300 items pareto NKL oleh Karyawan Inventory Control & Karyawan Toko bertugas adalah kunci menjaga keakuratan stok."
+            },
+            {
+                category: "2. SO DCI - Uji Petik",
+                question: "Di Distribution Center (DCI), Supervisor IC wajib menentukan dan memastikan pelaksanaan uji petik harian dengan metode apa?",
+                options: [
+                    "Sampling acak barang berukuran besar saja",
+                    "Uji Petik LTF / FTL (List to Floor / Floor to List) secara harian",
+                    "Pengecekan fisik di area Loading Dock saja",
+                    "Pemeriksaan laporan administrasi tanpa cek fisik rak"
+                ],
+                correct: 1,
+                badgeAward: null,
+                explanation: "SPV IC bertugas menentukan Uji Petik LTF/FTL (List to Floor / Floor to List) untuk memastikan kesesuaian data stok DCI dengan fisik."
+            },
+
+            // Domain 3: Fraud Investigation & Anti-Fraud
+            {
+                category: "3. Fraud Investigation",
+                question: "Dalam menyusun Laporan Hasil Investigasi (BAP) atas indikasi fraud barang hilang, unsur Laporan lengkap apa yang WAJIB dipenuhi?",
+                options: [
+                    "3W + 1H (What, Who, Where, How)",
+                    "5W + 2H (What, Why, Where, Who, How to, How Much)",
+                    "4W + 2H (What, When, Where, Who, How, How many)",
+                    "5W + 1H (What, Why, Where, When, Who, How)"
+                ],
+                correct: 1,
+                badgeAward: "badge3",
+                explanation: "Laporan Hasil Investigasi Fraud wajib memenuhi unsur 5W + 2H: What, Why, Where, Who + How to (Bagaimana) & How Much (Berapa Kerugiannya)."
+            },
+            {
+                category: "3. Anti-Fraud & Detection",
+                question: "Tim IC menemukan indikasi kecurangan berupa transaksi 'Cancel Sales' berulang dan jeda waktu scan kurang dari 1 detik (< 1 dtk). Tindakan SPV IC adalah?",
+                options: [
+                    "Abaikan karena mempercepat penyelesaian kasir",
+                    "Investigasi indikasi fraud, ambil rekaman CCTV, dan evaluasi jeda scan",
+                    "Langsung mengenakan sanksi ganti rugi tanpa bukti BAP",
+                    "Menghapus log transaksi dari server cabang"
+                ],
+                correct: 1,
+                badgeAward: null,
+                explanation: "Jeda scan < 1 detik & transaksi cancel sales mencurigakan merupakan indikator fraud yang harus diinvestigasi via CCTV dan BAP."
+            },
+            {
+                category: "3. Truth Corner & Anti-Fraud",
+                question: "Salah satu sistem pelaporan penyimpangan/fraud di Toko Indomaret dan DCI yang dikelola oleh Divisi Fraud Investigation adalah?",
+                options: [
+                    "Whistleblower Mailbox",
+                    "Truth Corner",
+                    "IC Safety Box",
+                    "Audit Complaint Portal"
+                ],
+                correct: 1,
+                badgeAward: null,
+                explanation: "Sistem pelaporan penyimpangan dan fraud di Toko IDM & DCI dinamakan 'Truth Corner' yang dipantau oleh Divisi Fraud Investigation."
+            },
+
+            // Domain 4: Goods Intransit & Reporting
+            {
+                category: "4. Goods Intransit - NRB Proforma",
+                question: "Apabila terjadi selisih Nota Retur Barang (NRB) Proforma dari Toko ke DCI, tindakan investigasi awal bersama DCI yang tepat adalah?",
+                options: [
+                    "Mengecek rekaman CCTV DCI (Maksimal 2 x 24 Jam) sejak terbit NRB Proforma",
+                    "Membebankan seluruh selisih ke Sopir Delivery secara langsung",
+                    "Membuat BA pemusnahan barang hilang di Toko",
+                    "Mengubah status NRB Proforma menjadi NRB Fisik otomatis"
+                ],
+                correct: 0,
+                badgeAward: "badge4",
+                explanation: "Pemeriksaan NRB Proforma dilakukan bersama pihak DCI dengan mengecek rekaman CCTV DCI max 2x24 Jam sejak terbit untuk penerbitan BA pembebanan."
+            },
+            {
+                category: "4. Analisa DSI (Days Sales Inventory)",
+                question: "Berdasarkan UTJ SPV IC, apabila rekapitulasi data menunjukkan barang dagangan dengan DSI di atas 30 (tiga puluh) hari di Cabang, tindakan wajib SPV IC adalah?",
+                options: [
+                    "Membuang fisik barang agar DSI kembali normal",
+                    "Membuat analisa DSI & menyampaikan usulan solusi penurunan DSI ke Pihak Terkait (OPR, DC) & IC HO",
+                    "Menyimpan barang di gudang tanpa melapor ke BM",
+                    "Meminta toko menyembunyikan stok dari planogram"
+                ],
+                correct: 1,
+                badgeAward: null,
+                explanation: "SPV IC bertanggung jawab menyampaikan analisa DSI > 30 hari beserta usulan solusi penurunan DSI ke Pihak Terkait dan IC HO."
+            },
+
+            // Domain 5: Target Performance & Mitigation
+            {
+                category: "5. Target Kerja Barang Rusak",
+                question: "Berapakah target maksimal (KPI) batasan persentase Barang Rusak Dry di Toko/DC yang harus dikendalikan oleh tim IC?",
+                options: [
+                    "Rusak Dry ≤ 0.5%",
+                    "Rusak Dry ≤ 0.1%",
+                    "Rusak Dry ≤ 1.0%",
+                    "Rusak Dry ≤ 2.5%"
+                ],
+                correct: 1,
+                badgeAward: "badge5",
+                explanation: "Target pengendalian barang rusak: Dry ≤ 0.1%, Buah ≤ 8%, Say Bread ≤ 5%, RTE / Misdo / Mr. Bread ≤ 10%."
+            },
+            {
+                category: "5. Mitigasi Barang Expired & FEFO",
+                question: "Untuk mencegah barang rusak akibat kadaluarsa (Expired Date) di Toko, pelaksanaan SOP apakah yang wajib dipastikan oleh IC?",
+                options: [
+                    "Penerapan FIFO tanpa cek label tanggal",
+                    "SOP FEFO (First Expired First Out) & Penempelan Label ED pada barang kartonan",
+                    "Pengembalian barang ke supplier setelah lewat ED",
+                    "Penyimpanan barang ED di area kasir"
+                ],
+                correct: 1,
+                badgeAward: null,
+                explanation: "Penyebab telat retur / kadaluarsa dicegah dengan disiplin FEFO (First Expired First Out) dan penempelan label ED pada barang kartonan."
+            }
+        ];
+
+        let playerData = {
+            nama: '',
+            nik: '',
+            score: 0,
+            currentQuestion: 0,
+            correctCount: 0,
+            badges: []
+        };
+
+        function handleLogin(e) {
+            e.preventDefault();
+            playSFX('click');
+
+            playerData.nama = nameInput.value.trim();
+            playerData.nik = nikInput.value.trim();
+
+            if (!playerData.nama || !playerData.nik) return;
+
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('briefingScreen').classList.remove('hidden');
+            document.getElementById('briefingScreen').classList.add('flex');
+        }
+
+        function startGame() {
+            playSFX('click');
+            document.getElementById('briefingScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('gameScreen').classList.add('flex');
+
+            document.getElementById('playerDisplay').innerText = `👤 ${playerData.nama}`;
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const qIndex = playerData.currentQuestion;
+            const qData = scenarios[qIndex];
+
+            // Reset UI State
+            document.getElementById('feedbackBox').classList.add('hidden');
+            document.getElementById('optionsContainer').innerHTML = '';
+
+            // Update Progress Bar
+            const progressPct = Math.round(((qIndex) / scenarios.length) * 100);
+            document.getElementById('progressBar').style.width = `${progressPct}%`;
+            document.getElementById('progressText').innerText = `${progressPct}%`;
+
+            document.getElementById('caseCategory').innerText = qData.category;
+            document.getElementById('questionNum').innerText = `Soal ${qIndex + 1}/${scenarios.length}`;
+            document.getElementById('scenarioText').innerText = qData.question;
+
+            // Render Options
+            qData.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'neo-btn bg-white text-black p-3 text-xs sm:text-sm text-left border-2 border-black font-extrabold hover:bg-yellow-100 transition-all';
+                btn.innerText = `${String.fromCharCode(65 + idx)}. ${opt}`;
+                btn.onclick = () => checkAnswer(idx);
+                document.getElementById('optionsContainer').appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            const qIndex = playerData.currentQuestion;
+            const qData = scenarios[qIndex];
+            const isCorrect = (selectedIndex === qData.correct);
+
+            // Disable buttons
+            const buttons = document.getElementById('optionsContainer').getElementsByTagName('button');
+            for (let btn of buttons) {
+                btn.disabled = true;
+                btn.classList.add('opacity-50');
+            }
+
+            const feedbackBox = document.getElementById('feedbackBox');
+            const feedbackTitle = document.getElementById('feedbackTitle');
+            const feedbackDesc = document.getElementById('feedbackDesc');
+
+            feedbackBox.classList.remove('hidden');
+
+            if (isCorrect) {
+                playSFX('correct');
+                playerData.score += 100;
+                playerData.correctCount++;
+                feedbackBox.className = "p-3 border-3 border-black rounded-lg text-xs font-bold space-y-1 bg-green-200 border-green-800 text-green-900";
+                feedbackTitle.innerText = "✅ JAWABAN TEPAT! (+100 Poin)";
+                
+                // Award Badge
+                if (qData.badgeAward && !playerData.badges.includes(qData.badgeAward)) {
+                    playerData.badges.push(qData.badgeAward);
+                    const bElem = document.getElementById(qData.badgeAward);
+                    if(bElem) bElem.classList.remove('badge-locked');
+                    playSFX('badge');
+                }
+            } else {
+                playSFX('wrong');
+                playerData.score = Math.max(0, playerData.score - 20);
+                feedbackBox.className = "p-3 border-3 border-black rounded-lg text-xs font-bold space-y-1 bg-red-200 border-red-800 text-red-900";
+                feedbackTitle.innerText = "❌ KURANG TEPAT (-20 Poin)";
+            }
+
+            feedbackDesc.innerText = qData.explanation;
+            document.getElementById('scoreDisplay').innerText = `Poin: ${playerData.score}`;
+        }
+
+        function nextQuestion() {
+            playSFX('click');
+            playerData.currentQuestion++;
+
+            if (playerData.currentQuestion < scenarios.length) {
+                renderQuestion();
+            } else {
+                // Open 5W2H Sandbox before final debrief
+                document.getElementById('gameScreen').classList.add('hidden');
+                document.getElementById('sandboxScreen').classList.remove('hidden');
+                document.getElementById('sandboxScreen').classList.add('flex');
+            }
+        }
+
+        function submitSandbox() {
+            playSFX('click');
+            const wVal = document.getElementById('sbWhat').value;
+            const wwVal = document.getElementById('sbWhoWhere').value;
+            const hVal = document.getElementById('sbHow').value;
+            const aVal = document.getElementById('sbAction').value;
+
+            let sandboxScore = 0;
+            if (wVal === 'correct') sandboxScore += 50;
+            if (wwVal === 'correct') sandboxScore += 50;
+            if (hVal === 'correct') sandboxScore += 50;
+            if (aVal === 'correct') sandboxScore += 50;
+
+            playerData.score += sandboxScore;
+
+            document.getElementById('sandboxScreen').classList.add('hidden');
+            finishGame();
+        }
+
+        function finishGame() {
+            document.getElementById('resultScreen').classList.remove('hidden');
+            document.getElementById('resultScreen').classList.add('flex');
+
+            document.getElementById('finalPlayerName').innerText = playerData.nama;
+            document.getElementById('finalPlayerNIK').innerText = `NIK: ${playerData.nik}`;
+            document.getElementById('finalScore').innerText = playerData.score;
+
+            const accuracy = Math.round((playerData.correctCount / scenarios.length) * 100);
+            document.getElementById('finalAccuracy').innerText = `Akurasi Teori & Case: ${accuracy}% (${playerData.correctCount}/${scenarios.length} Soal Benar)`;
+
+            // Positive Reinforcement Analysis
+            const reinfBox = document.getElementById('reinforcementBox');
+            if (accuracy >= 80) {
+                reinfBox.className = "p-3 border-2 border-black rounded-lg text-xs font-bold text-left bg-emerald-100 text-emerald-900 space-y-1";
+                reinfBox.innerHTML = `🌟 <b>REKOMENDASI: LULUS KUALIFIKASI SPV IC!</b><br>
+                Selamat! Anda menguasai dengan sangat baik seluruh domain kerja IC SPV: Audit SO, S-B-H-I, BAP 5W2H Fraud, Analisa DSI, BRD, dan Pengendalian Barang Rusak. Anda siap dipromosikan sebagai SPV IC!`;
+            } else {
+                reinfBox.className = "p-3 border-2 border-black rounded-lg text-xs font-bold text-left bg-amber-100 text-amber-900 space-y-1";
+                reinfBox.innerHTML = `💪 <b>EVALUASI: PERLU PEMANTAPAN MATERI</b><br>
+                Hasil Anda sudah cukup baik, namun masih ada beberapa SOP (seperti investigasi 5W2H, BRD/NRB Proforma, atau Uji Petik LTF/FTL) yang perlu dipertajam. Pelajari kembali materi PDF Hard skill SPV dan ulangi simulasi!`;
+            }
+
+            // Render Final Badges List
+            const finalBadgesDiv = document.getElementById('finalBadges');
+            finalBadgesDiv.innerHTML = '';
+            if (playerData.badges.length === 0) {
+                finalBadgesDiv.innerHTML = `<span class="text-gray-500 italic">Belum ada lencana yang didapatkan. Coba lagi!</span>`;
+            } else {
+                const badgeNames = {
+                    'badge1': '🏛️ Org Master',
+                    'badge2': '🔍 Audit Ninja',
+                    'badge3': '⚡ Fraud Buster',
+                    'badge4': '🚚 Intransit Pro',
+                    'badge5': '🎯 Target Specialist'
+                };
+                playerData.badges.forEach(bId => {
+                    const span = document.createElement('span');
+                    span.className = "neo-badge bg-yellow-300 px-2 py-1 rounded font-black border border-black";
+                    span.innerText = badgeNames[bId] || bId;
+                    finalBadgesDiv.appendChild(span);
+                });
+            }
+        }
+
+        function restartGame() {
+            playSFX('click');
+            playerData.score = 0;
+            playerData.currentQuestion = 0;
+            playerData.correctCount = 0;
+            playerData.badges = [];
+
+            // Reset Badge Lock UI
+            for(let i = 1; i <= 5; i++) {
+                const bElem = document.getElementById(`badge${i}`);
+                if(bElem) bElem.classList.add('badge-locked');
+            }
+
+            document.getElementById('resultScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('gameScreen').classList.add('flex');
+
+            renderQuestion();
+        }
+    </script>
+</body>
+</html>
